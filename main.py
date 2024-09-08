@@ -18,7 +18,8 @@ bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 
 # 초기 확장 목록
 initial_extensions = [
-    'cogs.algorithm_setting'
+    'cogs.algorithm_setting',
+    'cogs.algorithm_routes'
 ]
 
 @bot.event

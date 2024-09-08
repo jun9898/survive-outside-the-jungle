@@ -14,7 +14,7 @@ class AlgorithmSetting(commands.Cog):
         response = await api_service.spring_request()
         await interaction.response.send_message(f"Spring 서버 응답: {response}")
 
-    @app_commands.command(name="set_algorithm_forum", description="자동으로 algorithm 유형을 게시할 포럼을 지정합니다..")
+    @app_commands.command(name="set_algorithm_forum", description="자동으로 algorithm 유형을 게시할 포럼을 지정합니다.")
     @app_commands.describe(forum_id="forum id를 입력해주세요.")
     async def set_algorithm_forum(self, interaction: discord.Interaction, forum_id: str):
         if not any(role.permissions.administrator for role in interaction.user.roles):

@@ -25,3 +25,16 @@ async def spring_algorithm_registration(data):
     except Exception as e:
         return f"Connection error: {e}"
 
+
+async def set_algorithm_forum(data):
+    url = SPRING_SERVER_URL + "/set-algorithm-forum"  # 또는 실제 서버 주소
+    print("post 요청 test")
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, json=data) as response:
+                if response.status == 200:
+                    return await response.text()
+                else:
+                    return f"Error: {response.text()}"
+    except Exception as e:
+        return f"Connection error: {e}"

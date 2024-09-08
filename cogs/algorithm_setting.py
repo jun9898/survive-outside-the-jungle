@@ -4,7 +4,7 @@ from discord import app_commands
 from services import api_service
 
 
-class ServerRequests(commands.Cog):
+class AlgorithmSetting(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -13,6 +13,21 @@ class ServerRequests(commands.Cog):
     async def request_spring(self, interaction: discord.Interaction):
         response = await api_service.spring_request()
         await interaction.response.send_message(f"Spring 서버 응답: {response}")
+
+    @app_commands.command(name="set_algorithm_forum", description="자동으로 algorithm 유형을 게시할 포럼을 지정합니다..")
+    @app_commands.describe(forum_id="forum id를 입력해주세요.")
+    async def set_algorithm_forum(self, interaction: discord.Interaction, forum_id: str):
+        if not any(role.permissions.administrator for role in interaction.user.roles):
+            await interaction.response.send_message("이 명령어를 사용하려면 관리자 권한이 필요합니다.", ephemeral=True)
+            return
+        guild_id = str(interaction.guild_id)
+        data = {
+            "guild_id": guild_id,
+            "forum_id": forum_id
+        }
+        response = await api_service.set_algorithm_forum(data)
+        await interaction.response.send_message(f"{response}")
+
 
     @app_commands.command(name="algorithm", description="한 주간 알고리즘 유형을 입력 받습니다.")
     @app_commands.describe(
@@ -33,7 +48,9 @@ class ServerRequests(commands.Cog):
         if not any(role.permissions.administrator for role in interaction.user.roles):
             await interaction.response.send_message("이 명령어를 사용하려면 관리자 권한이 필요합니다.", ephemeral=True)
             return
+        guild_id = str(interaction.guild_id)
         data = {
+            "guild_id": guild_id,
             "mon": mon,
             "tue": tue,
             "wed": wed,
@@ -47,4 +64,4 @@ class ServerRequests(commands.Cog):
         await interaction.response.send_message(f"Spring 서버 응답: {response}")
 
 async def setup(bot):
-    await bot.add_cog(ServerRequests(bot))
+    await bot.add_cog(AlgorithmSetting(bot))

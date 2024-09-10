@@ -1,9 +1,12 @@
+import aiohttp
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 import os
-from config import PREFIX
+from config import PREFIX, SPRING_SERVER_URL
 import asyncio
+
+from services.api_service import join_server
 
 # .env 파일에서 환경 변수 로드
 load_dotenv()
@@ -21,6 +24,15 @@ initial_extensions = [
     'cogs.algorithm_setting',
     'cogs.algorithm_routes'
 ]
+
+@bot.event
+async def on_guild_join(guild):
+    print("joint guild : ", guild.name, guild.id, )
+    data = {
+        "guild_id": int(guild.id),
+        "guild_name": guild.name
+    }
+    await join_server(data)
 
 @bot.event
 async def on_ready():

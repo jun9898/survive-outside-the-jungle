@@ -1,14 +1,14 @@
-from discord.ext import commands, tasks
 from aiohttp import web
-
+from discord.ext import commands
 from config import DISCORD_SERVER_HOST, DISCORD_SERVER_PORT
+from services.algorithm_service import create_forum_post
 
 
 class AlgorithmRoutes(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.app = web.Application()
-        self.app.add_routes([web.post('/algorithm', self.handle_algorithm)])
+        self.app.add_routes([web.post('/today-algorithm', self.handle_algorithm)])
         self.runner = web.AppRunner(self.app)
 
         # 백그라운드로 aiohttp 서버 실행
@@ -18,30 +18,24 @@ class AlgorithmRoutes(commands.Cog):
         await self.runner.setup()
         site = web.TCPSite(self.runner, DISCORD_SERVER_HOST, DISCORD_SERVER_PORT)
         await site.start()
+        print(f'Server running on http://{DISCORD_SERVER_HOST}:{DISCORD_SERVER_PORT}')
 
     async def handle_algorithm(self, request):
         try:
             data = await request.json()
-            forum_id = data.get('forum_id')
-            mon = data.get('mon')
-            tue = data.get('tue')
-            wed = data.get('wed')
-            thu = data.get('thu')
-            fri = data.get('fri')
-            sat = data.get('sat')
-            sun = data.get('sun')
-
-            # 여기서 받은 데이터를 원하는 대로 처리할 수 있습니다.
-            print(f"Received data for guild {forum_id}: {data}")
-
-            # 데이터를 Discord에서 처리하고 응답을 보냅니다.
-            # 필요한 경우 서버에서 특정 채널에 메시지를 보낼 수도 있습니다.
-
-            return web.Response(text="Algorithm data received successfully.")
+            if isinstance(data, list):
+                for item in data:
+                    await create_forum_post(self, item)
+            elif isinstance(data, dict):
+                await create_forum_post(self, data)
+            else:
+                raise ValueError("Invalid data format")
+            return web.Response(status=200)
         except Exception as e:
             print(f"Error: {e}")
-            return web.Response(status=500, text="Error processing data")
+            return web.Response(status=500, text=f"Error processing data: {str(e)}")
+
+
 
 async def setup(bot):
     await bot.add_cog(AlgorithmRoutes(bot))
-

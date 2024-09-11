@@ -15,7 +15,7 @@ async def spring_request():
 
 async def join_server(data):
     print(data)
-    print("join-server")
+    print("join-server : ", data)
     url = SPRING_SERVER_URL + "/join-server"  # 또는 실제 서버 주소
     try:
         async with aiohttp.ClientSession() as session:

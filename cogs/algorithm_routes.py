@@ -26,8 +26,6 @@ class AlgorithmRoutes(commands.Cog):
             if isinstance(data, list):
                 for item in data:
                     await create_forum_post(self, item)
-            elif isinstance(data, dict):
-                await create_forum_post(self, data)
             else:
                 raise ValueError("Invalid data format")
             return web.Response(status=200)

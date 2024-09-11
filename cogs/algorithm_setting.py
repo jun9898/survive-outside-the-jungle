@@ -1,18 +1,16 @@
-from datetime import datetime
 import json
+
 import discord
-from discord.ext import commands
 from discord import app_commands, Interaction
+from discord.ext import commands
+
 from services import api_service
 from services.algorithm_service import create_forum_post
-from utils.formater import format_response
+from utils.formater import format_algorithm_info
 
 
 def check_admin_permissions(user):
     return any(role.permissions.administrator for role in user.roles)
-
-
-
 
 class AlgorithmSetting(commands.Cog):
     def __init__(self, bot):
@@ -38,8 +36,8 @@ class AlgorithmSetting(commands.Cog):
         guild_id = int(interaction.guild_id)
         forum_id = str(forum_id)
         data = {
-            "guild_id": guild_id,
-            "forum_id": forum_id
+            "guildId": guild_id,
+            "forumId": forum_id
         }
         response = await api_service.set_algorithm_forum(data)
         await interaction.response.send_message(f"{response}")
@@ -65,7 +63,7 @@ class AlgorithmSetting(commands.Cog):
             return
         guild_id = int(interaction.guild_id)
         data = {
-            "guild_info_id": guild_id,
+            "guildInfoId": guild_id,
             "mon": mon,
             "tue": tue,
             "wed": wed,
@@ -82,19 +80,21 @@ class AlgorithmSetting(commands.Cog):
     async def get_weekly_algorithms(self, interaction):
         guild_id = int(interaction.guild_id)
         response = await api_service.get_weekly_algorithms(guild_id)
-        print("response_data : ", response)
-        formatted_response = format_response(response)
-        print("formatted_response : ", formatted_response)
-        await interaction.response.send_message(f"이번 주 알고리즘:\n{formatted_response}")
+        response = json.loads(response)
+        algorithm_info = ""
+        for i in response:
+            algorithm_info += f"{format_algorithm_info(i)}\n"
+        await interaction.response.send_message(f"이번 주 알고리즘:\n{algorithm_info}")
 
     @app_commands.command(name="get_today_algorithm", description="오늘 알고리즘 유형을 가져와 포스팅합니다.")
     async def get_today_algorithm(self, interaction: discord.Interaction):
         guild_id = int(interaction.guild_id)
         response = await api_service.get_today_algorithm(guild_id)
-        print("response_data : ", response)
-        await create_forum_post(self, response)
-        formatted_response = format_response(response)
-        await interaction.response.send_message(f"오늘의 알고리즘:\n{formatted_response}")
+        print(response)
+        response_dict = json.loads(response)
+        algorithm_info = format_algorithm_info(response_dict)
+        await create_forum_post(self, response_dict)
+        await interaction.response.send_message(f"오늘의 알고리즘:\n{algorithm_info}")
 
 async def setup(bot):
     await bot.add_cog(AlgorithmSetting(bot))

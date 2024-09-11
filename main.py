@@ -1,11 +1,11 @@
-import aiohttp
+import asyncio
+import os
+
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-import os
-from config import PREFIX, SPRING_SERVER_URL
-import asyncio
 
+from config import PREFIX
 from services.api_service import join_server
 
 # .env 파일에서 환경 변수 로드
@@ -29,8 +29,8 @@ initial_extensions = [
 async def on_guild_join(guild):
     print("joint guild : ", guild.name, guild.id, )
     data = {
-        "guild_id": int(guild.id),
-        "guild_name": guild.name
+        "guildId": int(guild.id),
+        "guildName": guild.name
     }
     await join_server(data)
 

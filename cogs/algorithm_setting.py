@@ -12,15 +12,16 @@ from utils.formater import format_algorithm_info
 def check_admin_permissions(user):
     return any(role.permissions.administrator for role in user.roles)
 
+async def check_and_respond(self, interaction: Interaction):
+    if not check_admin_permissions(interaction.user):
+        await interaction.response.send_message("이 명령어를 사용하려면 관리자 권한이 필요합니다.", ephemeral=True)
+        return False
+    return True
+
 class AlgorithmSetting(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    async def check_and_respond(self, interaction: Interaction):
-        if not check_admin_permissions(interaction.user):
-            await interaction.response.send_message("이 명령어를 사용하려면 관리자 권한이 필요합니다.", ephemeral=True)
-            return False
-        return True
 
     # 슬래시 명령어 등록
     @app_commands.command(name="spring", description="Spring 서버에 요청을 보냅니다.")
@@ -31,7 +32,7 @@ class AlgorithmSetting(commands.Cog):
     @app_commands.command(name="set_algorithm_forum", description="자동으로 algorithm 유형을 게시할 포럼을 지정합니다.")
     @app_commands.describe(forum_id="forum id를 입력해주세요.")
     async def set_algorithm_forum(self, interaction: discord.Interaction, forum_id: str):
-        if not check_admin_permissions(interaction.user):
+        if not check_and_respond(interaction.user):
             return
         guild_id = int(interaction.guild_id)
         forum_id = str(forum_id)
@@ -59,7 +60,7 @@ class AlgorithmSetting(commands.Cog):
         mon: str, tue: str, wed: str, thu: str, fri: str, sat: str, sun: str
     ):
         # 관리자 권한 검사
-        if not check_admin_permissions(interaction.user):
+        if not check_and_respond(interaction.user):
             return
         guild_id = int(interaction.guild_id)
         data = {
